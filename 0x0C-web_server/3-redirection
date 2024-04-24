@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
-# Installs nginx web server
+# Script that installs Nginx server and redirects /redirect_me
 
-apt-get update
-apt-get install -y nginx
-echo "Holberton School" > /etc/nginx/html/index.html
-echo "server {
-    listen 80;
-        listen [::]:80 default_server;
-	    root   /etc/nginx/html;
-	        index  index.html;
-		    location /redirect_me {
-		            return 301 https://www.instagram.com/trac.erphotography;
-			        }
-		}" > /etc/nginx/sites-available/default
-	service nginx restart
+sudo apt-get -y update
+sudo apt-get -y install nginx
+sudo ufw allow 'Nginx HTTP'
+echo "Holberton School" | sudo tee /var/www/html/index
+sudo sed -i '/listen 80 default_server/a rewrite ^/redirect_me https://twitter.com/the_dark_tracer/ permanent;' /etc/nginx/sites-available/default
+sudo service nginx restart
