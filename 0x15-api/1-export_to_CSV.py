@@ -1,37 +1,18 @@
 #!/usr/bin/python3
-"""
-get data from an api based on the userd id that is passed as argument
-"""
-
+"""Exports to-do list information for a given employee ID to CSV format."""
 import csv
 import requests
-from sys import argv
-
+import sys
 
 if __name__ == "__main__":
-    
-    if len(argv) == 2:
-        url_base = 'https://jsonplaceholder.typicode.com/users/'
-        person_url = '{}{}'.format(url_base, argv[1])
-        todos_url = '{}{}/{}'.format(url_base, argv[1], 'todos')
+    u_id = sys.argv[1]
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/{}".format(u_id)).json()
+    username = user.get("username")
+    todos = requests.get(url + "todos", params={"userId": u_id}).json()
 
-        """ do two request
-        one for user personal info and for todos tasks
-        """
-        person_res = requests.get(person_url)
-        todos_res = requests.get(todos_url)
-
-        """ get the obj responses body"""
-        person_obj = person_res.json()
-        todos_obj = todos_res.json()
-
-        """ working with the data """
-        name = person_obj['username']
-        filename = '{}.csv'.format(person_obj['id'])
-
-        with open(filename, 'w', newline='') as f:
-            for obj in todos_obj:
-                line = [obj['userId'], name, obj['completed'], obj['title']]
-                writer = csv.writer(f, delimiter=',', quotechar='"',
-                        quoting=csv.QUOTE_ALL)
-                writer.writerow(line)
+    with open("{}.csv".format(u_id), "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        [writer.writerow(
+            [u_id, username, t.get("completed"), t.get("title")]
+            ) for t in todos]
