@@ -1,26 +1,21 @@
 #!/usr/bin/python3
+""" Script to get the first 10 hot
+    posts on Reddit
 """
-Get the hottest posts from a subreddit
-limit = 0
-"""
-import requests
-from sys import argv
+from requests import get
 
 
 def top_ten(subreddit):
-    """ get data form reddit api"""
-
-    query_st = 'limit=10'
-    url = 'http://www.reddit.com/r/{}/hot.json?{}'.format(subreddit, query_st)
-    userA = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:76.0)\
-            Gecko/20100101 Firefox/76.0"
-
-    headers = {"User-Agent": userA}
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        response = response.json()
-        for post in response['data']['children']:
-            print(post['data']['title'])
-    else:
-        return print('None')
+    """get first 10 hot post for a subreddit"""
+    if subreddit and type(subreddit) is str:
+        url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
+        headers = {'user-agent': 'my-app/0.0.1'}
+        params = {'limit': 10}
+        req = get(url, params=params, headers=headers, allow_redirects=False)
+        if req.status_code == 200:
+            data = req.json()
+            posts = data.get('data', {}).get('children', {})
+            for post in posts:
+                print(post.get('data').get('title'))
+        else:
+            print(None)
